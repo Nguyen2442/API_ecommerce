@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllProducts, getProductById, addProduct, updateProduct, deleteProduct, getCount, getFeaturedCount } = require('../controllers/products');
+const { getAllProducts, getProductById, addProduct, updateProduct, deleteProduct, getCount, getFeaturedCount, updateGalleryImages } = require('../controllers/products');
 const multer = require('multer');
 
 
@@ -46,12 +46,15 @@ router.get(`/:id`, getProductById)
 //add product
 router.post(`/`, uploadOptions.single('image'), addProduct)
 //update product
-router.put('/:id', updateProduct)
+router.put('/:id', uploadOptions.single('image'),updateProduct)
 //delete product
 router.delete('/:id', deleteProduct)
 //get count of product
 router.get('/get/count', getCount);
 //get count of featured product
-router.get('/get/featured/:count', getFeaturedCount)
+router.get('/get/featured/:count', getFeaturedCount);
+
+//update gallery image
+router.put('/gallery-images/:id', uploadOptions.array('image', 10), updateGalleryImages);
 
 module.exports = router;

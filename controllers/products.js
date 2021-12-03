@@ -1,6 +1,7 @@
 const { Product } = require('../models/product');
 const { Category } = require('../models/category');
 const mongoose = require('mongoose');
+const { restart } = require('nodemon');
 
 
 
@@ -32,14 +33,18 @@ exports.addProduct =  async (req, res) => {
     if (!category) {
         return res.status(400).send('Invalid Category');
     }
-    const fileName = req.file.filename
+
+    const file = req.file;
+    if(!file){
+        return res.status(400).send('No image in the request');
+    } 
+    const fileName = file.filename
     const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
     let product = new Product({
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
         image: `${basePath}${fileName}`,
-        // image: req.body.image,
         brand: req.body.brand,
         price: req.body.price,
         category: req.body.category,
@@ -65,13 +70,30 @@ exports.updateProduct = async (req, res) => {
         if (!category) {
             return res.status(400).send('Invalid Category');
         }
-        const product = await Product.findByIdAndUpdate(
+
+        const product = await Product.findbyId(req.params.id);
+        if(!product){
+            return res.status(400).send('Invalid Product')
+        }
+
+        const file = req.file;
+        let imagepath;
+
+        if(file){
+            const fileName = file.name;
+            const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+            imagepath = `${basePath}${fileName}`;
+        }else{
+            imagepath = product.image;
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
             req.params.id,
             {
                 name: req.body.name,
                 description: req.body.description,
                 richDescription: req.body.richDescription,
-                image: req.body.image,
+                image: imagepath,
                 brand: req.body.brand,
                 price: req.body.price,
                 category: req.body.category,
@@ -83,7 +105,7 @@ exports.updateProduct = async (req, res) => {
             { new: true }
         )
 
-        res.status(200).json(product);
+        res.status(200).json(updatedProduct);
     } catch (err){
         res.status(500).json({ success: false, error: err })
     }
@@ -121,3 +143,32 @@ exports.getFeaturedCount = async (req, res) => {
     }
 }
 
+
+
+exports.updateGalleryImages = async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        return res.status(400).send('Invalid Product Id');
+    }
+    const files = req.files;
+    let imagesPaths = [];
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+
+    if (files) {
+        files.map((file) => {
+            imagesPaths.push(`${basePath}${file.filename}`);
+        });
+    }
+
+    try{
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            {
+                images: imagesPaths
+            },
+            { new: true }
+        );
+        res.send(product).status(200);
+    }catch(err){
+        res.status(500).json({ success: false, error: err }).send('The gallery cannot be updated!');
+    }
+}
