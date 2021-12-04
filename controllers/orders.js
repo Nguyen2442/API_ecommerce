@@ -70,7 +70,7 @@ exports.updateOrder = async (req, res) => {
         const order = await Order.findByIdAndUpdate(req.params.id, {
             status: req.body.status
         },
-            { new: true }
+            // { new: true }
         )
         res.send(order).status(200);
     } catch (err) {
@@ -94,7 +94,7 @@ exports.deleteOrder = async (req, res) => {
     //     })
     
         try {
-            await Order.findByIdAndRemove(req.params.id);
+            const order = await Order.findByIdAndRemove(req.params.id);
             if(order){
                await order.orderItem.map(async orderItem => {
                    await OrderItem.findByIdAndRemove(orderItem)

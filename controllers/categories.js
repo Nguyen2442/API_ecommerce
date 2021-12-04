@@ -42,7 +42,7 @@ exports.updateCategory = async (req, res) => {
             icon: req.body.icon,
             color: req.body.color
         },
-            { new: true }
+            // { new: true }
         )
         res.send(category);
     } catch (err) {

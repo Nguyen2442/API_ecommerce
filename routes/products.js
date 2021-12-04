@@ -55,6 +55,6 @@ router.get('/get/count', getCount);
 router.get('/get/featured/:count', getFeaturedCount);
 
 //update gallery image
-router.put('/gallery-images/:id', uploadOptions.array('image', 10), updateGalleryImages);
+router.put('/gallery-images/:id', uploadOptions.array('images', 10), updateGalleryImages);
 
 module.exports = router;

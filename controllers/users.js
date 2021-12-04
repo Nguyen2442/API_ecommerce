@@ -22,10 +22,10 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.addUser = async (req, res) => {
-    let user = new User({
+    let user = await new User({
         name: req.body.name,
         email: req.body.email,
-        passwordHash: bcrypt.hashSync(req.body.password, 10),
+        passwordHash: bcrypt.genSaltSync(req.body.password, 10),
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
         street: req.body.street,
@@ -47,7 +47,7 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email: req.body.email });
         const secret = process.env.secret;
 
-        if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
+        if (user && bcrypt.compare(req.body.password, user.passwordHash)) {
             const token = jwt.sign(
                 {
                     userId: user.id,
@@ -66,10 +66,11 @@ exports.login = async (req, res) => {
 }
 
 exports.register = async (req, res) => {
+    
     let user = new User({
         name: req.body.name,
         email: req.body.email,
-        passwordHash: bcrypt.hashSync(req.body.password, 10),
+        passwordHash: bcrypt.genSaltSync(req.body.password, 10),
         phone: req.body.phone,
         isAdmin: req.body.isAdmin,
         street: req.body.street,

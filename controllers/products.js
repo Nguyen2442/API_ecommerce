@@ -1,7 +1,7 @@
 const { Product } = require('../models/product');
 const { Category } = require('../models/category');
 const mongoose = require('mongoose');
-const { restart } = require('nodemon');
+
 
 
 
@@ -71,7 +71,7 @@ exports.updateProduct = async (req, res) => {
             return res.status(400).send('Invalid Category');
         }
 
-        const product = await Product.findbyId(req.params.id);
+        const product = await Product.findById(req.params.id);
         if(!product){
             return res.status(400).send('Invalid Product')
         }
@@ -80,7 +80,7 @@ exports.updateProduct = async (req, res) => {
         let imagepath;
 
         if(file){
-            const fileName = file.name;
+            const fileName = file.filename;
             const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
             imagepath = `${basePath}${fileName}`;
         }else{
@@ -102,7 +102,7 @@ exports.updateProduct = async (req, res) => {
                 numReviews: req.body.numReviews,
                 isFeatured: req.body.isFeatured,
             },
-            { new: true }
+            // { new: true }
         )
 
         res.status(200).json(updatedProduct);
