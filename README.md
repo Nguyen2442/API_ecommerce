@@ -8,6 +8,7 @@ github client: https://github.com/huynhimo635/ecommerce-shop-web-reactjs
 
 
 admin : https://bikework-admin.netlify.app .
+login: admin@gmail.com 123456
 
 
 
