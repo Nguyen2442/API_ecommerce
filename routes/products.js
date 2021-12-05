@@ -10,15 +10,6 @@ const FILE_TYPE_MAP = {
     'image/jpg': 'jpg'
 };
 
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, 'public/uploads')
-//     },
-//     filename: (req, file, cb) => {
-//         const fileName = file.originalname.split(' ').join('-');
-//         cb(null, file.fieldname + '-' + Date.now())
-//     }
-// })
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {

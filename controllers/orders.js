@@ -7,7 +7,7 @@ exports.getAllOrders = async (req, res) => {
         const orderList = await Order.find().populate('user', 'name').sort({ 'dateOrdered': -1 });
         res.status(200).send(orderList);
     } catch (err) {
-        res.status(500).json({ success: false },{message: err})
+        res.status(500).json({ success: false }, { message: err })
     }
 }
 
@@ -79,30 +79,51 @@ exports.updateOrder = async (req, res) => {
 }
 
 exports.deleteOrder = async (req, res) => {
-    // Order.findByIdAndRemove(req.params.id)
-    //     .then(async order => {
-    //         if (order) {
-    //             await order.orderItems.map(async orderItem => {
-    //                 await OrderItem.findByIdAndRemove(orderItem)
-    //             })
-    //             return res.status(200).json({ success: true, message: 'The order is deleted!' })
-    //         } else {
-    //             return res.status(404).json({ success: false, message: "order not found!" })
-    //         }
-    //     }).catch(err => {
-    //         return res.status(500).json({ success: false, error: err })
-    //     })
-    
-        try {
-            const order = await Order.findByIdAndRemove(req.params.id);
-            if(order){
-               await order.orderItem.map(async orderItem => {
-                   await OrderItem.findByIdAndRemove(orderItem)
-               }) 
-               res.status(200).json({ success: true, message: 'The product is deleted' })
-            }
-            res.status(404).json({ success: true, message: 'The order not found' })
-        } catch (err) {
-            res.status(500).json({ success: false, error: err })
+    try {
+        const order = await Order.findByIdAndRemove(req.params.id);
+        if (order) {
+            await order.orderItem.map(async orderItem => {
+                await OrderItem.findByIdAndRemove(orderItem)
+            })
+            res.status(200).json({ success: true, message: 'The product is deleted' })
         }
+        res.status(404).json({ success: true, message: 'The order not found' })
+    } catch (err) {
+        res.status(500).json({ success: false, error: err })
+    }
+}
+
+exports.getTotalSales = async(req, res)=>{
+    try{
+        const totalSales = await Order.aggregate([
+            { $group: {_id: null, totalsales: { $sum: '$totalPrice'}}}
+        ])
+        res.send({totalsales: totalSales}).status(200);
+    }catch(err){
+        res.status(400).send('The order sales cannot be generated').json({ success: false, error: err })
+    }
+}
+
+exports.getCount =  async(req, res)=>{
+    try{
+        const orderCount = await Order.countDocuments((count)=>count)
+        res.send({
+            orderCount: orderCount
+        }).status(200)
+    }catch(err){
+        res.status(500).json({success: false, error: err})
+    }
+}
+
+
+exports.getUserOrders = async(req, res)=>{
+    const userOrderList = await Order.find({user: req.params.userid}).populate('user', 'name')
+    .sort({'dateOrdered': -1});
+
+    if(!userOrderList){
+        res.status(500).json({sucess: false, error: err});
+    }
+
+    res.status(200).send(userOrderList);
+
 }
